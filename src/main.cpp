@@ -108,7 +108,7 @@ int getInt(const std::string& prompt = "", int min = 0, int max = 999999){
 	while(true){
 		std::cout << prompt << "\n >> ";
 		std::getline(std::cin, strInput);
-		if(!validateIntStr(strInput)){
+		if(!(int)validateDoubleStr(strInput)){
 			std::cout << errmsg.invalidIntType;
 			continue;
 		}
