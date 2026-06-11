@@ -42,7 +42,9 @@ struct ErrMsgs {
 	const std::string fileCantBeRead = "File Error: File cannot be read. Is the text file missing or renamed?\n"
 									   "Make sure Inventory/inventory.txt exists.\n";
 	const std::string corruptLineSkipped = "File Error: Line not parsed properly, perhaps the line was corrupted.\n";
-    // Integer Errors
+    
+	// --- Input Errors ---
+	// Integer Errors
     const std::string invalidIntType  = "Input Error: Please enter a valid whole number.\n";
     const std::string invalidIntRange = "Input Error: Number is out of the allowed range.\n";
 
@@ -58,6 +60,7 @@ struct ErrMsgs {
     const std::string invalidCharType = "Input Error: Please enter only a single character.\n";
 	const std::string invalidCharVal  = "Input Error: That choice is not recognized.\n";
 
+	// --------------------
 }const errmsg;
 
 
@@ -88,25 +91,18 @@ int main(int argc, char* argv[])
 		std::cout << errmsg.missingArguments;
 		return 1;
 	}
-	std::string filePath = argv[1];
+	
 
+	// initialize inventory vector to prepare for loading
 	std::vector<ProductInfo> productInventory;
 
 	// check if the file was read properly
+	std::string filePath = argv[1];
 	if(!loadInventory(productInventory, filePath)){
 		std::cout << errmsg.fileCantBeRead;
 		return 1;
 	}
 
-	std::cout << productInventory[0].ID << " " << productInventory[0].name << " " << productInventory[0].price << " " << productInventory[0].stockQnty << "\n";
-	
-	std::cout << "Inventory System\n";
-	std::string str = getString("Input string.", 5, 10);
-	double db = getDouble("Input double.", 0.0, 100.0);
-	int i = getInt("Input int.", 0, 5);
-	char ch = getChar("Input char.", 'a', 'c');
-
-	std::cout << str << " " << db << " " << i << " " << ch << "\n";
 	return 0;
 }
 
@@ -116,25 +112,24 @@ bool loadInventory(std::vector<ProductInfo>& productInventory, const std::string
 
 	std::string productRawData;
 	ProductInfo processedData;
+
 	std::ifstream readFile(filePath);
-	if(readFile.is_open()){ // to check if the file is open
-		while (std::getline (readFile, productRawData)) {
-			if(productRawData.empty()) continue;
+	if(!readFile.is_open()) return false;
 
-			processedData = parseLine(productRawData);
+	while (std::getline (readFile, productRawData)) {
+		if(productRawData.empty()) continue;
 
-			if(processedData.ID == "[ERROR]"){
-				std::cout << errmsg.corruptLineSkipped;
-				std::cout << "Raw Line : " << productRawData << "\n";
-				continue;
-			}
+		processedData = parseLine(productRawData);
 
-			productInventory.push_back(processedData);
+		if(processedData.ID == "[ERROR]"){
+			std::cout << errmsg.corruptLineSkipped;
+			std::cout << "Raw Line : " << productRawData << "\n";
+			continue;
 		}
-		readFile.close(); // close the file
+
+		productInventory.push_back(processedData);
 	}
-	// return false when file was not opened.
-	else return false;
+	readFile.close(); // close the file
 
 	return true;
 }
