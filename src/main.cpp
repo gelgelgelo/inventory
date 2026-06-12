@@ -35,13 +35,11 @@ struct SaleReceipt {
 	 etc. */
 struct ErrMsgs {
 	// Argument Errors
-	const std::string missingArguments = "Argument Error: Arguments is incomplete, the program may not run properly.\n"
-										 "Use the run command of the Makefile or run the code along with the file path of the text file.\n";
+	const std::string missingArguments = "Argument Error: Arguments is incomplete.\n";
 
 	// File Errors
-	const std::string fileCantBeRead = "File Error: File cannot be read. Is the text file missing or renamed?\n"
-									   "Make sure Inventory/inventory.txt exists.\n";
-	const std::string corruptLineSkipped = "File Error: Line not parsed properly, perhaps the line was corrupted.\n";
+	const std::string fileCantBeRead = "File Error: File cannot be read.\n";
+	const std::string corruptLineSkipped = "File Error: Line not parsed properly.\n";
     
 	// --- Input Errors ---
 	// Integer Errors
@@ -60,7 +58,6 @@ struct ErrMsgs {
     const std::string invalidCharType = "Input Error: Please enter only a single character.\n";
 	const std::string invalidCharVal  = "Input Error: That choice is not recognized.\n";
 
-	// --------------------
 }const errmsg;
 
 
@@ -79,9 +76,9 @@ bool validateString(const std::string&);
 bool validateDoubleStr(const std::string&);
 bool validateIntStr(const std::string&);
 
+// display
+void displayProducts(const std::vector<ProductInfo> &);
 
-
- // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< MAIN LOGIC FLOW
 
 // this uses args so we can run 
 int main(int argc, char* argv[])
@@ -102,10 +99,21 @@ int main(int argc, char* argv[])
 		std::cout << errmsg.fileCantBeRead;
 		return 1;
 	}
-
+	displayProducts(productInventory);
 	return 0;
 }
 
+void displayProducts(const std::vector<ProductInfo> &products)
+{
+	for(const auto &p : products) {
+	std::cout << "================================\n";
+		std::cout	<< "ID: " << p.ID << "\n"
+				<< "name: " << p.name << "\n"
+				<< "price: " << p.price << "\n"
+				<< "stock: " << p.stockQnty << "\n";
+	std::cout << "================================\n";
+	}	
+}
 
 bool loadInventory(std::vector<ProductInfo>& productInventory, const std::string& filePath){
 	if(filePath.empty()) return false;
