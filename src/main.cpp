@@ -100,9 +100,9 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 	displayProducts(productInventory);
+	updateProduct(productInventory);
 	return 0;
 }
-<<<<<<< HEAD
 
 void displayProducts(const std::vector<ProductInfo> &products)
 {
@@ -372,6 +372,3 @@ bool validateIntStr(const std::string& str){
 
 	return true;
 }
-=======
-//nothing
->>>>>>> b0077c026d008a991d1e99d01a0c93b4d628e9e3
