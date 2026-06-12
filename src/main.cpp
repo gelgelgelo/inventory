@@ -78,7 +78,7 @@ bool validateIntStr(const std::string&);
 
 // display
 void displayProducts(const std::vector<ProductInfo> &);
-
+void updateProduct(std::vector<ProductInfo>&);
 
 // this uses args so we can run 
 int main(int argc, char* argv[])
@@ -190,6 +190,52 @@ ProductInfo parseLine(const std::string& productRawData){
 		return {"[ERROR]", "", 0.0, 0};
 	else
 		return {ID, name, price, stockQnty};
+}
+
+void updateProduct(std::vector<ProductInfo>& products)
+{
+	std::string targetID;
+	bool found = false;
+
+	std::cout << "\nEnter Product ID to update: ";
+	std::getline(std::cin, targetID);
+
+	for (auto &p : products)
+	{
+		if (p.ID == targetID)
+		{
+			found = true;
+
+			std::cout << "\nCURRENT PRODUCT INFO\n";
+			std::cout << "ID: " << p.ID << "\n";
+			std::cout << "Name: " << p.name << "\n";
+			std::cout << "Price: " << p.price << "\n";
+			std::cout << "Stock: " << p.stockQnty << "\n";
+
+			std::string input;
+
+			std::cout << "New Name: ";
+			std::getline(std::cin, input);
+			if (!input.empty())
+				p.name = input;
+
+			std::cout << "New Price: ";
+			std::getline(std::cin, input);
+			if (!input.empty() && validateDoubleStr(input))
+				p.price = std::stod(input);
+
+			std::cout << "New Stock: ";
+			std::getline(std::cin, input);
+			if (!input.empty() && validateIntStr(input))
+				p.stockQnty = std::stoi(input);
+
+			std::cout << "\nUpdated Successfully!\n";
+			break;
+		}
+	}
+
+	if (!found)
+		std::cout << "\nProduct ID not found.\n";
 }
 
 
