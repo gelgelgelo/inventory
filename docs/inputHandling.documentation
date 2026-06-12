@@ -1,0 +1,16 @@
+`getString()`
+get string input from users, all input that goes through `getstring` is validated.
+
+Usage:
+	getString(std::string prompt, int minLen, int maxLen)
+
+`getDouble()`
+get Double input from users, all input that goes through `getDouble` is validated.
+
+Usage: 
+	getString(std::string prompt, double minLen, double maxLen)
+	
+
+			
+	
+
