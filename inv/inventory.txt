@@ -1,23 +1,19 @@
-S101|Notebook|20.50|97|
-S102|Ballpen Blue|15.00|120|
-S103|Pencil HB|12.25|200|
-S104|Eraser Large|8.00|50|
-S105|Ruler 12in|18.50|75|
-F201|Banana Chips|17.99|134|
-S106|Highlighter Yellow|25.00|40|
-F206|Instant Noodles||50|
-B304|Fruit Juice Bottle|30.00|forty|
-E404|Wireless Mouse|350.00|15|
-E405|Missing Pipe Character
-P101||15.00|120|
-B305|Energy Drink|45.00|85|
-F202|Potato Chips|35.00|80|
-F203|Chocolate Bar|45.50|65|
-F204|Biscuit Pack|22.00|110|
-F205|Peanuts Salty|15.75|90|
-B301|Mineral Water|12.00|150|
-B302|Soda Can|28.50|95|
-B303|Iced Tea Bottle|32.00|70|
-E401|USB Flash Drive 32GB|250.00|40|
-E402|AA Battery 4pack|85.00|60|
-E403|Wired Earphones|180.00|25|
+S101|Notebook|20.50|97
+S102|Ballpen Blue|15.00|120
+S103|Pencil HB|12.25|200
+S104|Eraser Large|8.00|50
+S105|Ruler 12in|18.50|75
+F201|Banana Chips|17.99|134
+S106|Highlighter Yellow|25.00|40
+E404|Wireless Mouse|350.00|15
+B305|Energy Drink|45.00|85
+F202|Potato Chips|35.00|80
+F203|Chocolate Bar|45.50|65
+F204|Biscuit Pack|22.00|110
+F205|Peanuts Salty|15.75|90
+B301|Mineral Water|12.00|150
+B302|Soda Can|28.50|95
+B303|Iced Tea Bottle|32.00|70
+E401|USB Flash Drive 32GB|250.00|40
+E402|AA Battery 4pack|85.00|60
+E403|Wired Earphones|180.00|25

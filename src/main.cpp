@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
@@ -6,7 +5,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-
 
 
 // STRUCTS AND GLOBALS
@@ -36,8 +34,6 @@ struct ErrMsgs {
 	const std::string fileCantBeRead = "File Error: File cannot be read.\n";
 	const std::string corruptLineSkipped = "File Error: Line not parsed properly.\n";
 
-	const std::string fileCantBeRead = "[File Error]: File cannot be read. Is the text file missing or renamed?\n"
-	const std::string corruptLineSkipped = "[Parsing Error]: Line not parsed properly and is skipped. Perhaps the line was corrupted.\n";
 	const std::string parsedWithSkippedLines = "[File Warning]: File read successfully, but some lines are skipped.\n\n";
 	const std::string fileNotOpened = "[File Error]: File was not opened properly. Saving aborted.\n";
 	const std::string savingFailed = "[System Error]: Failed to finalize the file save.\n";
@@ -311,18 +307,6 @@ void updateProduct(std::vector<ProductInfo>& products)
 }
 
 
-/*  input for values, last 2 params for min and max length/value
-	1st is for the prompt to ask the user. 
-	default params if not needed.
-	how to use:
-	std::string name = getString("Please enter product name.", 5, 32);
-	double price = getDouble("Please enter product price.", 0.01);// notice max isnt given
-	int ID = getInt("Please enter product ID.", 0);// same here
-	char choice = getChar("Would you like to continue? (y/n)");// in this case, range limit wont make sense
-																so simply allow the function asking for it 
-																to proccess the choice
-	[REMEMBER] make sure to check the minimum and maximum, you dont want that to mess
-	up the program */
 std::string getString(const std::string& prompt = "", int min = 1, int max = 999999){
 	std::string input;
 
