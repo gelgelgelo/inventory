@@ -110,8 +110,6 @@ int main()
 
     
     displayProducts(productInventory);
-    updateProduct(productInventory);
-    addProduct(productInventory);
     searchProduct(productInventory);
 
     status = saveInventory(productInventory, filePath);
@@ -372,13 +370,14 @@ void searchProduct(const std::vector<ProductInfo>& products) {
 
             for (const auto& p : products) {
                 if (p.ID.find(idPattern) != std::string::npos) {
-                    if (!found);
+                    if (!found) {
                     found = true;
                     std::cout << "-------------------------------------------------------------\n"
                               << "ID: " << p.ID 
                               << " | name: " << p.name 
                               << " | price: " << p.price 
                               << " | stock: " << p.stockQnty << "\n";
+                    }
                 }
             }
             if (!found) std::cout << errmsg.productNotFound;
@@ -390,13 +389,14 @@ void searchProduct(const std::vector<ProductInfo>& products) {
 
             for (const auto& p : products) {
                 if (p.name.find(keyword) != std::string::npos) {
-                    if (!found);
+                    if (!found) {
                     found = true;
                     std::cout <<  "-------------------------------------------------------------\n"
                               << "ID: " << p.ID 
                               << " | name: " << p.name 
                               << " | price: " << p.price 
                               << " | stock: " << p.stockQnty << "\n";
+                    }
                 }
             }
             if (!found) std::cout << errmsg.nameNotFound;
