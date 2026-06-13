@@ -93,6 +93,7 @@ int main()
     // check if the file was read properly
     std::string filePath = "inv/inventory.txt";
     int status = loadInventory(productInventory, filePath);
+
     
     std::cout << "\n\n";
     switch(status){
@@ -137,12 +138,12 @@ int main()
 void displayProducts(const std::vector<ProductInfo> &products)
 {
     for(const auto &p : products) {
-    std::cout << "================================\n";
-        std::cout	<< "ID: " << p.ID << "\n"
-                << "name: " << p.name << "\n"
-                << "price: " << p.price << "\n"
-                << "stock: " << p.stockQnty << "\n";
-    std::cout << "================================\n";
+        if(p.stockQnty != 0) {
+            std::cout	<< "ID: " << p.ID << " | "
+                        << "name: " << p.name << " | "
+                        << "price: " << p.price << " | "
+                        << "stock: " << p.stockQnty << "\n";
+        }
     }	
 }
 

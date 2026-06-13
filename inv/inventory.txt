@@ -17,3 +17,4 @@ B303|Iced Tea Bottle|32.00|70
 E401|USB Flash Drive 32GB|250.00|40
 E402|AA Battery 4pack|85.00|60
 E403|Wired Earphones|180.00|25
+E404|Penis Pump|99.9|0
