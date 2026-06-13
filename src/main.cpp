@@ -44,6 +44,8 @@ struct ErrMsgs {
     const std::string invalidStrPipePresent = "[Input Error]: Pipe ('|') was detected. Please avoid this character\n";
     const std::string invalidCharType = "[Input Error]: Please enter only a single character.\n";
     const std::string invalidCharVal  = "[Input Error]: That choice is not recognized.\n";
+    const std::string duplicateID = "[Input Error]: Product ID already exists. Please use a unique ID.\n";
+    const std::string productNotFound = "[Search Error]: Product ID not found.\n";
 }const errmsg;
 
 struct FileStatus {
@@ -64,10 +66,10 @@ int saveInventory(const std::vector<ProductInfo>&, const std::string&);
 std::string encodeProductData(const ProductInfo&);
 
 // inputs
-std::string getString(const std::string&, int, int);
-double getDouble(const std::string&, double, double);
-int getInt(const std::string&, int, int);
-char getChar(const std::string&, char, char);
+std::string getString(const std::string& prompt = "", int min = 1, int max = 999999);
+double getDouble(const std::string& prompt = "", double min = 0.0, double max = 999999.9);
+int getInt(const std::string& prompt = "", int min = 0, int max = 999999);
+char getChar(const std::string& prompt = "", char min = 'a', char max = 'z');
 bool validateString(const std::string&);
 bool validateDoubleStr(const std::string&);
 bool validateIntStr(const std::string&);
@@ -78,7 +80,7 @@ void displayProducts(const std::vector<ProductInfo> &);
 void updateProduct(std::vector<ProductInfo>&);
 void addProduct(std::vector<ProductInfo>& inventory);
 
-// this uses args so we can run 
+
 int main()
 {
     // initialize inventory vector
@@ -103,8 +105,12 @@ int main()
             std::cout << errmsg.fileCantBeRead;
             return 1;
     }
+
+    
     displayProducts(productInventory);
     updateProduct(productInventory);
+    addProduct(productInventory);
+    
 
     status = saveInventory(productInventory, filePath);
     switch(status){
@@ -149,27 +155,20 @@ void addProduct(std::vector<ProductInfo>& inventory)
     int stockQnty;
     
     while (true) {
-        ID = getString("Enter Product ID", 1, 20);
+        ID = getString("Enter Product ID", 4);
         
         if (isIdDuplicate(ID, inventory)) {
-            std::cout << "\n[Input Error]: Product ID \"" << ID << "\" already exists. Please use a unique ID.\n\n";
+            std::cout << errmsg.duplicateID;
             continue;
         }
         
         break;
     }
     name = getString("Enter Product Name", 1, 100);
-    price = getDouble("Enter Product Price", 0.01, 999999.99);
-    stockQnty = getInt("Enter Stock Quantity", 0, 999999);
+    price = getDouble("Enter Product Price", 0.01);
+    stockQnty = getInt("Enter Stock Quantity", 0);
 
-    std::string rawData =
-        ID + "|" +
-        name + "|" +
-        std::to_string(price) + "|" +
-        std::to_string(stockQnty);
-
-    ProductInfo product = parseLine(rawData);
-    inventory.push_back(product);
+    inventory.push_back({ID, name, price, stockQnty});
 
     std::cout << "\nProduct added successfully!\n";
 }
@@ -292,58 +291,82 @@ std::string encodeProductData(const ProductInfo& productData){
 void updateProduct(std::vector<ProductInfo>& products)
 {
     std::string targetID;
+    ProductInfo* targetProduct = nullptr;
     bool found = false;
+    char choice;
 
-    std::cout << "\nEnter Product ID to update: ";
-    std::getline(std::cin, targetID);
+    targetID = getString("\nEnter Product ID to update: ", 4);
 
     // Looking for product
     for (auto &p : products)
     {
         if (p.ID == targetID)
         {
-            found = true;
-            char choice;
-            
-            do {
-                std::cout << "\n--- UPDATE MENU ---\n";
-                std::cout << "Current Product: " << p.name << " (ID: " << p.ID << ")\n";
-                std::cout << "a. Name (Current: " << p.name << ")\n";
-                std::cout << "b. Price (Current: " << p.price << ")\n";
-                std::cout << "c. Stock Quantity (Current: " << p.stockQnty << ")\n";
-                std::cout << "d. Exit\n";
-                
-                choice = getChar("Select an option (a-d):", 'a', 'd');
-
-                switch(choice) {
-                    case 'a':
-                        p.name = getString("Enter New Name: ", 1, 50);
-                        std::cout << "Name updated!\n";
-                        break;
-                    case 'b':
-                        p.price = getDouble("Enter New Price: ", 0.0, 999999.9);
-                        std::cout << "Price updated!\n";
-                        break;
-                    case 'c':
-                        p.stockQnty = getInt("Enter New Stock Quantity: ", 0, 999999);
-                        std::cout << "Stock updated!\n";
-                        break;
-                    case 'd':
-                        std::cout << "Exiting update menu...\n";
-                        break;
-                }
-            } while (choice != 'd');
-
-            std::cout << "\nProduct updated successfully!\n";
-            return; 
+            found = true; 
+            targetProduct = &p;
+            break;
         }
     }
 
-    if (!found)
-        std::cout << "\nProduct ID not found.\n";
+    if (!found){
+        std::cout << errmsg.productNotFound;
+        return;
+    }
+        
+            
+    do {
+        std::cout << "\n--- UPDATE MENU ---\n";
+        std::cout << "Current Product: " << (*targetProduct).name << " (ID: " << (*targetProduct).ID << ")\n";
+        std::cout << "a. Name (Current: " << (*targetProduct).name << ")\n";
+        std::cout << "b. Price (Current: " << (*targetProduct).price << ")\n";
+        std::cout << "c. Stock Quantity (Current: " << (*targetProduct).stockQnty << ")\n";
+        std::cout << "d. Exit\n";
+        
+        choice = getChar("Select an option (a-d):", 'a', 'd');
+
+        switch(choice) {
+            case 'a':
+                (*targetProduct).name = getString("Enter New Name: ", 1, 50);
+                std::cout << "Name updated!\n";
+                break;
+            case 'b':
+                (*targetProduct).price = getDouble("Enter New Price: ", 0.01);
+                std::cout << "Price updated!\n";
+                break;
+            case 'c':
+                (*targetProduct).stockQnty = getInt("Enter New Stock Quantity: ", 1);
+                std::cout << "Stock updated!\n";
+                break;
+            case 'd':
+                std::cout << "Exiting update menu...\n";
+                break;
+        }
+    } while (choice != 'd');
+
+    std::cout << "\nProduct updated successfully!\n";
+    return;
 }
 
-double getDouble(const std::string& prompt = "", double min = 0.0, double max = 999999.9){
+ std::string getString(const std::string& prompt, int min, int max){
+    std::string input;
+
+    while(true){
+        std::cout << prompt << "\n >> ";
+        std::getline(std::cin, input);
+        if((int)input.length() < min || (int)input.length() > max){
+            std::cout << errmsg.invalidStrLength;
+            continue;
+        }
+        if(!validateString(input)){
+            std::cout << errmsg.invalidStrPipePresent;
+            continue;
+        }
+
+        return input;
+    }
+} 
+
+double getDouble(const std::string& prompt, double min, double max){
     std::string strInput;
 
     while(true){
@@ -363,13 +386,13 @@ double getDouble(const std::string& prompt = "", double min = 0.0, double max = 
     }
 }
 
-int getInt(const std::string& prompt = "", int min = 0, int max = 999999){
+int getInt(const std::string& prompt, int min, int max){
     std::string strInput;
 
     while(true){
         std::cout << prompt << "\n >> ";
         std::getline(std::cin, strInput);
-        if(!(int)validateIntStr(strInput)){
+        if(!validateIntStr(strInput)){
             std::cout << errmsg.invalidIntType;
             continue;
         }
@@ -383,7 +406,7 @@ int getInt(const std::string& prompt = "", int min = 0, int max = 999999){
     }
 }
 
-char getChar(const std::string& prompt = "", char min = 'a', char max = 'z'){
+char getChar(const std::string& prompt, char min, char max){
     std::string strInput;
 
     while(true){
@@ -403,10 +426,16 @@ char getChar(const std::string& prompt = "", char min = 'a', char max = 'z'){
     }
 }
 
-bool validateString(const std::string& str){
-    //immediately return false if empty input
-    if(str.empty()) return false;
+bool isIdDuplicate(const std::string& id, const std::vector<ProductInfo>& inventory) {
+    for (const auto& product : inventory) {
+        if (product.ID == id) {
+            return true;
+        }
+    }
+    return false;
+}
 
+bool validateString(const std::string& str){
     for(char c : str){
         if(c == '|') return false;
     }
