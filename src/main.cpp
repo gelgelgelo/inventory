@@ -30,47 +30,31 @@ struct SaleReceipt {
 
 };
 
-/*  error messages for error handling, mostly gonna be used for inputs tho.
-	how to use:
-	 user inputted a letter in an int input: std::cout << errmsg.invalidIntType;
-	 user inputted an invalid value for int: std::cout << errmsg.invalidIintRange;
-	 etc. */
 struct ErrMsgs {
-	// Argument Errors
 	const std::string missingArguments = "Argument Error: Arguments is incomplete.\n";
 
-	// File Errors
 	const std::string fileCantBeRead = "File Error: File cannot be read.\n";
 	const std::string corruptLineSkipped = "File Error: Line not parsed properly.\n";
-    
-	// --- Input Errors ---
-	// File Errors
+
 	const std::string fileCantBeRead = "[File Error]: File cannot be read. Is the text file missing or renamed?\n"
-									   "Make sure inv/inventory.txt exists.\n";
 	const std::string corruptLineSkipped = "[Parsing Error]: Line not parsed properly and is skipped. Perhaps the line was corrupted.\n";
-    const std::string parsedWithSkippedLines = "[File Warning]: File read successfully, but some lines are skipped.\n\n";
+	const std::string parsedWithSkippedLines = "[File Warning]: File read successfully, but some lines are skipped.\n\n";
 	const std::string fileNotOpened = "[File Error]: File was not opened properly. Saving aborted.\n";
 	const std::string savingFailed = "[System Error]: Failed to finalize the file save.\n";
 	const std::string writingfailed = "[System Error]: There was an error writing into file.\n";
 
-// --- Input Errors ---
-	// Integer Errors
-    const std::string invalidIntType  = "[Input Error]: Please enter a valid whole number.\n";
-    const std::string invalidIntRange = "[Input Error]: Number is out of the allowed range.\n";
+	const std::string invalidIntType  = "[Input Error]: Please enter a valid whole number.\n";
+	const std::string invalidIntRange = "[Input Error]: Number is out of the allowed range.\n";
 
-    // Double Errors
-    const std::string invalidDoubleType  = "[Input Error]: Please enter a valid decimal number.\n";
-    const std::string invalidDoubleRange = "[Input Error]: Value is out of the allowed range.\n";
+	const std::string invalidDoubleType  = "[Input Error]: Please enter a valid decimal number.\n";
+	const std::string invalidDoubleRange = "[Input Error]: Value is out of the allowed range.\n";
 
-    // String Errors
 	const std::string invalidStrLength = "[Input Error]: Text length does not meet the required limits.\n";
-    const std::string invalidStrPipePresent = "[Input Error]: Pipe ('|') was detected. Please avoid this character\n";
+	const std::string invalidStrPipePresent = "[Input Error]: Pipe ('|') was detected. Please avoid this character\n";
 
-	// Character Errors
-    const std::string invalidCharType = "[Input Error]: Please enter only a single character.\n";
+	const std::string invalidCharType = "[Input Error]: Please enter only a single character.\n";
 	const std::string invalidCharVal  = "[Input Error]: That choice is not recognized.\n";
 
-// --------------------
 }const errmsg;
 
 struct FileStatus {
