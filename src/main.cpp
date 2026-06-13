@@ -261,62 +261,50 @@ void updateProduct(std::vector<ProductInfo>& products)
     std::cout << "\nEnter Product ID to update: ";
     std::getline(std::cin, targetID);
 
+    // Looking for product
     for (auto &p : products)
     {
         if (p.ID == targetID)
         {
             found = true;
+            char choice;
+            
+            do {
+                std::cout << "\n--- UPDATE MENU ---\n";
+                std::cout << "Current Product: " << p.name << " (ID: " << p.ID << ")\n";
+                std::cout << "a. Name (Current: " << p.name << ")\n";
+                std::cout << "b. Price (Current: " << p.price << ")\n";
+                std::cout << "c. Stock Quantity (Current: " << p.stockQnty << ")\n";
+                std::cout << "d. Exit\n";
+                
+                choice = getChar("Select an option (a-d):", 'a', 'd');
 
-            std::cout << "\nCURRENT PRODUCT INFO\n";
-            std::cout << "ID: " << p.ID << "\n";
-            std::cout << "Name: " << p.name << "\n";
-            std::cout << "Price: " << p.price << "\n";
-            std::cout << "Stock: " << p.stockQnty << "\n";
+                switch(choice) {
+                    case 'a':
+                        p.name = getString("Enter New Name: ", 1, 50);
+                        std::cout << "Name updated!\n";
+                        break;
+                    case 'b':
+                        p.price = getDouble("Enter New Price: ", 0.0, 999999.9);
+                        std::cout << "Price updated!\n";
+                        break;
+                    case 'c':
+                        p.stockQnty = getInt("Enter New Stock Quantity: ", 0, 999999);
+                        std::cout << "Stock updated!\n";
+                        break;
+                    case 'd':
+                        std::cout << "Exiting update menu...\n";
+                        break;
+                }
+            } while (choice != 'd');
 
-            std::string input;
-
-            std::cout << "New Name: ";
-            std::getline(std::cin, input);
-            if (!input.empty())
-                p.name = input;
-
-            std::cout << "New Price: ";
-            std::getline(std::cin, input);
-            if (!input.empty() && validateDoubleStr(input))
-                p.price = std::stod(input);
-
-            std::cout << "New Stock: ";
-            std::getline(std::cin, input);
-            if (!input.empty() && validateIntStr(input))
-                p.stockQnty = std::stoi(input);
-
-            std::cout << "\nUpdated Successfully!\n";
-            break;
+            std::cout << "\nProduct updated successfully!\n";
+            return; 
         }
     }
 
     if (!found)
         std::cout << "\nProduct ID not found.\n";
-}
-
-
-std::string getString(const std::string& prompt = "", int min = 1, int max = 999999){
-    std::string input;
-
-    while(true){
-        std::cout << prompt << "\n >> ";
-        std::getline(std::cin, input);
-        if(!validateString(input)){
-            std::cout << errmsg.invalidStrPipePresent;
-            continue;
-        }
-        if((int)input.length() < min || (int)input.length() > max){
-            std::cout << errmsg.invalidStrLength;
-            continue;
-        }
-        
-        return input;
-    }
 }
 
 double getDouble(const std::string& prompt = "", double min = 0.0, double max = 999999.9){
