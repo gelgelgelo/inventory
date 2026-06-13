@@ -46,6 +46,8 @@ struct ErrMsgs {
     const std::string invalidCharVal  = "[Input Error]: That choice is not recognized.\n";
     const std::string duplicateID = "[Input Error]: Product ID already exists. Please use a unique ID.\n";
     const std::string productNotFound = "[Search Error]: Product ID not found.\n";
+const std::string searchUnavailable = "[Notice]: Search unavailable. Database contains no item data tracks.\n";
+    const std::string nameNotFound = "\n[Search Error]: No records matched string entry arrays.\n";
 }const errmsg;
 
 struct FileStatus {
@@ -79,7 +81,7 @@ bool isIdDuplicate(const std::string& id, const std::vector<ProductInfo>& invent
 void displayProducts(const std::vector<ProductInfo> &);
 void updateProduct(std::vector<ProductInfo>&);
 void addProduct(std::vector<ProductInfo>& inventory);
-
+void searchProduct(const std::vector<ProductInfo>& products);
 
 int main()
 {
@@ -110,7 +112,7 @@ int main()
     displayProducts(productInventory);
     updateProduct(productInventory);
     addProduct(productInventory);
-    
+    searchProduct(productInventory);
 
     status = saveInventory(productInventory, filePath);
     switch(status){
@@ -346,6 +348,64 @@ void updateProduct(std::vector<ProductInfo>& products)
     std::cout << "\nProduct updated successfully!\n";
     return;
 }
+
+void searchProduct(const std::vector<ProductInfo>& products) {
+    if (products.empty()) {
+        std::cout << errmsg.searchUnavailable;
+        return;
+    }
+
+    int choice = 0;
+    
+    while (choice != 3) {
+        std::cout << "\n=== PRODUCT QUERY SEARCH CENTER ===\n";
+        std::cout << "[1] Search by Product ID Structural Pattern (e.g. 'E40')\n";
+        std::cout << "[2] Search by Product Name Keyword\n";
+        std::cout << "[3] Exit Search Mode Menu\n";
+        choice = getInt("Select entry point parameter (1-3):", 1, 3);
+
+        
+
+        if (choice == 1) {
+            std::string idPattern = getString("Enter structural ID sequence segment profile:", 1, 20);
+            bool found = false;
+
+            for (const auto& p : products) {
+                if (p.ID.find(idPattern) != std::string::npos) {
+                    if (!found);
+                    found = true;
+                    std::cout << "-------------------------------------------------------------\n"
+                              << "ID: " << p.ID 
+                              << " | name: " << p.name 
+                              << " | price: " << p.price 
+                              << " | stock: " << p.stockQnty << "\n";
+                }
+            }
+            if (!found) std::cout << errmsg.productNotFound;
+            else std::cout << "-------------------------------------------------------------\n";
+
+        } else if (choice == 2) {
+            std::string keyword = getString("Enter targeted name filter keyword entry:", 1, 30);
+            bool found = false;
+
+            for (const auto& p : products) {
+                if (p.name.find(keyword) != std::string::npos) {
+                    if (!found);
+                    found = true;
+                    std::cout <<  "-------------------------------------------------------------\n"
+                              << "ID: " << p.ID 
+                              << " | name: " << p.name 
+                              << " | price: " << p.price 
+                              << " | stock: " << p.stockQnty << "\n";
+                }
+            }
+            if (!found) std::cout << errmsg.nameNotFound;
+            else std::cout << "-------------------------------------------------------------\n";
+        }
+    }
+    std::cout << "Exiting search system modules.\n";
+}
+
 
  std::string getString(const std::string& prompt, int min, int max){
     std::string input;
