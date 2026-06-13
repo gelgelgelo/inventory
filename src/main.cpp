@@ -71,10 +71,12 @@ char getChar(const std::string&, char, char);
 bool validateString(const std::string&);
 bool validateDoubleStr(const std::string&);
 bool validateIntStr(const std::string&);
+bool isIdDuplicate(const std::string& id, const std::vector<ProductInfo>& inventory);
 
 // display
 void displayProducts(const std::vector<ProductInfo> &);
 void updateProduct(std::vector<ProductInfo>&);
+void addProduct(std::vector<ProductInfo>& inventory);
 
 // this uses args so we can run 
 int main()
@@ -138,6 +140,40 @@ void displayProducts(const std::vector<ProductInfo> &products)
         }
     }	
 }
+
+void addProduct(std::vector<ProductInfo>& inventory)
+{
+    std::string ID;
+    std::string name;
+    double price;
+    int stockQnty;
+    
+    while (true) {
+        ID = getString("Enter Product ID", 1, 20);
+        
+        if (isIdDuplicate(ID, inventory)) {
+            std::cout << "\n[Input Error]: Product ID \"" << ID << "\" already exists. Please use a unique ID.\n\n";
+            continue;
+        }
+        
+        break;
+    }
+    name = getString("Enter Product Name", 1, 100);
+    price = getDouble("Enter Product Price", 0.01, 999999.99);
+    stockQnty = getInt("Enter Stock Quantity", 0, 999999);
+
+    std::string rawData =
+        ID + "|" +
+        name + "|" +
+        std::to_string(price) + "|" +
+        std::to_string(stockQnty);
+
+    ProductInfo product = parseLine(rawData);
+    inventory.push_back(product);
+
+    std::cout << "\nProduct added successfully!\n";
+}
+
 
 int loadInventory(std::vector<ProductInfo>& productInventory, const std::string& filePath){
     std::string productRawData;
