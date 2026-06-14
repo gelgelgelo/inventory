@@ -299,6 +299,7 @@ void updateProduct(std::vector<ProductInfo>& products)
     return;
 }
 
+
 void searchProduct(const std::vector<ProductInfo>& products) {
     if (products.empty()) {
         std::cout << errmsg.searchUnavailable;
@@ -308,55 +309,65 @@ void searchProduct(const std::vector<ProductInfo>& products) {
     int choice = 0;
     
     while (choice != 3) {
-        std::cout << "\n=== PRODUCT QUERY SEARCH CENTER ===\n";
-        std::cout << "[1] Search by Product ID Structural Pattern (e.g. 'E40')\n";
+        std::cout << "\n====== PRODUCT SEARCH CENTER ======\n";
+        std::cout << "[1] Search by Product ID Patterns (e.g. 'e40')\n";
         std::cout << "[2] Search by Product Name Keyword\n";
         std::cout << "[3] Exit Search Mode Menu\n";
-        choice = getInt("Select entry point parameter (1-3):", 1, 3);
-
-        
+        choice = getInt("Select an option (1-3):", 1, 3);
 
         if (choice == 1) {
-            std::string idPattern = getString("Enter structural ID sequence segment profile:", 1, 20);
+            std::string idPattern = getString("Enter your ID sequence profile:", 1, 20);
+            //to lower user ID input
+            std::string lowerPattern = idPattern;
+            std::transform(lowerPattern.begin(), lowerPattern.end(), lowerPattern.begin(), ::tolower);
+            
             bool found = false;
-
+            
+            //lower ID items temporarily
             for (const auto& p : products) {
-                if (p.ID.find(idPattern) != std::string::npos) {
-                    if (!found) {
+                std::string lowerID = p.ID;
+                std::transform(lowerID.begin(), lowerID.end(), lowerID.begin(), ::tolower);
+           
+            //output (compare lowercase user Input to lowercase temp. item's ID)
+                if (lowerID.find(lowerPattern) != std::string::npos) {
                     found = true;
-                    std::cout << "-------------------------------------------------------------\n"
-                              << "ID: " << p.ID 
+                    std::cout << "ID: " << p.ID
                               << " | name: " << p.name 
                               << " | price: " << p.price 
                               << " | stock: " << p.stockQnty << "\n";
-                    }
                 }
             }
             if (!found) std::cout << errmsg.productNotFound;
-            else std::cout << "-------------------------------------------------------------\n";
 
         } else if (choice == 2) {
-            std::string keyword = getString("Enter targeted name filter keyword entry:", 1, 30);
+            std::string keyword = getString("Enter targeted name filter keyword entry:", 1, 50); 
+//whats the max characters for name input? 
+//masyado na ata pag 50 no?
+            
+            //to lower user keywords/name input
+            std::string lowerKeyword = keyword;
+            std::transform(lowerKeyword.begin(), lowerKeyword.end(), lowerKeyword.begin(), ::tolower);
+            
             bool found = false;
-
+            
+            //lower item names temporarily
             for (const auto& p : products) {
-                if (p.name.find(keyword) != std::string::npos) {
-                    if (!found) {
+                std::string lowerName = p.name;
+                std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), ::tolower);
+            
+            //output (compare both lowercases)
+                if (lowerName.find(lowerKeyword) != std::string::npos) {
                     found = true;
-                    std::cout <<  "-------------------------------------------------------------\n"
-                              << "ID: " << p.ID 
-                              << " | name: " << p.name 
-                              << " | price: " << p.price 
-                              << " | stock: " << p.stockQnty << "\n";
-                    }
+                    std::cout << "ID: " << p.ID << " | name: " << p.name 
+                              << " | price: " << p.price << " | stock: " << p.stockQnty << "\n";
                 }
             }
             if (!found) std::cout << errmsg.nameNotFound;
-            else std::cout << "-------------------------------------------------------------\n";
         }
     }
     std::cout << "Exiting search system modules.\n";
 }
+
 
 
  std::string getString(const std::string& prompt, int min, int max){
