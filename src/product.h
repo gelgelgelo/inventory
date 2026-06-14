@@ -29,3 +29,7 @@ struct SaleReceipt {
 
 };
 
+struct CartItem {
+    ProductInfo* product;
+    int orderQty;
+};

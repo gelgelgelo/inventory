@@ -76,25 +76,25 @@ void updateProduct(std::vector<ProductInfo>& products)
             
     do {
         std::cout << "\n--- UPDATE MENU ---\n";
-        std::cout << "Current Product: " << (*targetProduct).name << " (ID: " << (*targetProduct).ID << ")\n";
-        std::cout << "a. Name (Current: " << (*targetProduct).name << ")\n";
-        std::cout << "b. Price (Current: " << (*targetProduct).price << ")\n";
-        std::cout << "c. Stock Quantity (Current: " << (*targetProduct).stockQnty << ")\n";
+        std::cout << "Current Product: " << targetProduct->name << " (ID: " << targetProduct->ID << ")\n";
+        std::cout << "a. Name (Current: " << targetProduct->name << ")\n";
+        std::cout << "b. Price (Current: " << targetProduct->price << ")\n";
+        std::cout << "c. Stock Quantity (Current: " << targetProduct->stockQnty << ")\n";
         std::cout << "d. Exit\n";
         
         choice = getChar("Select an option (a-d):", 'a', 'd');
 
         switch(choice) {
             case 'a':
-                (*targetProduct).name = getString("Enter New Name : ", 1, 50);
+                targetProduct->name = getString("Enter New Name : ", 1, 50);
                 std::cout << "Name updated!\n";
                 break;
             case 'b':
-                (*targetProduct).price = getDouble("Enter New Price : ", 0.01);
+                targetProduct->price = getDouble("Enter New Price : ", 0.01);
                 std::cout << "Price updated!\n";
                 break;
             case 'c':
-                (*targetProduct).stockQnty = getInt("Enter New Stock Quantity : ", 1);
+                targetProduct->stockQnty = getInt("Enter New Stock Quantity : ", 1);
                 std::cout << "Stock updated!\n";
                 break;
             case 'd':
@@ -166,60 +166,6 @@ void searchProduct(const std::vector<ProductInfo>& products) {
     std::cout << "\nExiting search system modules.\n";
 }
 
-void processOrder(std::vector<ProductInfo>& products)
-{
-    if (products.empty()) {
-        std::cout << "\n[Notice] No products are available. Orders cannot be processed at this time.\n";
-        return;
-    }
-
-    char menuChoice;
-
-    std::cout << "\n=== CUSTOMER ORDERING SYSTEM ===\n";
-
-    do {
-        std::string targetID = getString("\nEnter Product ID to order ('cancel' to cancel): ", 4, 6);
-        if(targetID == "cancel")
-            return;
-
-        ProductInfo* targetProduct = nullptr;
-        for (auto &p : products) {
-            if (p.ID == targetID) {
-                targetProduct = &p;
-                break;
-            }
-        }
-
-        if (targetProduct == nullptr) {
-            std::cout << errmsg.productNotFound;
-
-        } else if (targetProduct->stockQnty <= 0) {
-            std::cout << "\n[Error] \"" << targetProduct->name
-                      << "\" is currently out of stock and cannot be ordered.\n";
-
-        } else {
-            std::cout << "\nProduct Found -> " << targetProduct->name
-                      << " | Price: " << std::fixed << std::setprecision(2) << targetProduct->price
-                      << " | Available Stock: " << targetProduct->stockQnty << "\n";
-
-            int orderQty = getInt("Enter Quantity to order (0 to cancel): ", 0, targetProduct->stockQnty);
-            if(orderQty == 0)
-                break;
-            
-            targetProduct->stockQnty -= orderQty;
-
-            std::cout << "\nOrder for " << orderQty << " x \"" << targetProduct->name
-                      << "\" processed successfully!\n";
-            std::cout << "Remaining Stock: " << targetProduct->stockQnty << "\n";
-        }
-
-        menuChoice = getChar("Process another? ('Y'/'n') : ", 'A', 'z');
-
-    } while (menuChoice == 'y' || menuChoice == 'Y');
-
-    std::cout << "\nExiting customer ordering system...\n";
-}
-
 void deleteProduct(std::vector<ProductInfo>& products) {
     std::cout << "\n--- Delete Product Record ---\n";
 
@@ -233,27 +179,30 @@ void deleteProduct(std::vector<ProductInfo>& products) {
         return;
 
     bool found = false;
+    int id = 0;
 
-    for (auto &p : products) {
-        if (p.ID == targetID && p.stockQnty != 0) { 
+    for (const ProductInfo &p : products) {
+        if (p.ID == targetID) { 
             found = true;
             std::cout << "\n[Product Found]\n";
-
-            printProductInfo(p);
-            
-            char confirm = getChar("Confirm deletion? (y/n): ", 'A', 'z');
-            
-            if (std::tolower(confirm) == 'y') {
-                p.stockQnty = 0; 
-                std::cout << "Product dropped.\n";
-            } else {
-                std::cout << "Cancelled.\n";
-            }
             break;
         }
+        id++;
     }
 
     if (!found) {
         std::cout << errmsg.productNotFound;
+        return;
+    }
+
+    printProductInfo(products[id]);
+    
+    char confirm = getChar("Confirm deletion? (y/n): ", 'A', 'z');
+    
+    if (std::tolower(confirm) == 'y') {
+        products.erase(products.begin() + id); 
+        std::cout << "Product dropped.\n";
+    } else {
+        std::cout << "Cancelled.\n";
     }
 }

@@ -71,6 +71,30 @@ void printProductInfo(const ProductInfo& p){
               << "| " << std::right << std::setw(WIDTH_STOCK) << p.stockQnty << "|\n";
 }
 
+void printCartTableSeparator(){
+    int totalWidth = WIDTH_NAME + WIDTH_PRICE + WIDTH_STOCK + WIDTH_T_PRICE + 7; 
+    std::cout << " " << std::string(totalWidth, '-') << "\n";
+}
+
+void printCartTableHeader(){
+    printCartTableSeparator();
+    std::cout << "| " << std::left  << std::setw(WIDTH_NAME)  << "Cart"
+              << "| " << std::right << std::setw(WIDTH_PRICE) << "Price"
+              << "| " << std::right << std::setw(WIDTH_STOCK) << "Order"
+              << "| " << std::right << std::setw(WIDTH_T_PRICE) << "Total" << "|\n";
+    printCartTableSeparator();
+}
+
+void printCartInfo(const CartItem& ci){
+    std::cout << std::fixed << std::setprecision(2);
+
+    std::cout << "| " << std::left  << std::setw(WIDTH_NAME)  << ci.product->name
+              << "| " << std::right << std::setw(WIDTH_PRICE) << ci.product->price
+              << "| " << std::right << std::setw(WIDTH_STOCK) << ci.orderQty
+              << "| " << std::right << std::setw(WIDTH_T_PRICE) << ci.orderQty*ci.product->price << "|\n";
+}
+
+
 void displayProducts(const std::vector<ProductInfo> &products)
 {
 
@@ -83,4 +107,14 @@ void displayProducts(const std::vector<ProductInfo> &products)
     }	
 
     printInventoryTableSeparator();
+}
+
+void displayCart(const std::vector<CartItem>& cart, const double total){
+    printCartTableHeader();
+    for(const CartItem& ci : cart){    
+        printCartInfo(ci);
+    }
+    printCartTableSeparator();
+
+    std::cout << "Total : " << total << "\n\n";
 }
