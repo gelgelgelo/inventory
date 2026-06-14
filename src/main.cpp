@@ -311,7 +311,7 @@ void searchProduct(const std::vector<ProductInfo>& products) {
         
 
         if (choice == 1) {
-            std::string idPattern = getString("Enter structural ID sequence segment profile:", 1, 20);
+            std::string idPattern = getString("Enter ID patterns:", 1, 20);
             bool found = false;
 
             for (const auto& p : products) {
@@ -330,7 +330,7 @@ void searchProduct(const std::vector<ProductInfo>& products) {
             else std::cout << "-------------------------------------------------------------\n";
 
         } else if (choice == 2) {
-            std::string keyword = getString("Enter targeted name filter keyword entry:", 1, 30);
+            std::string keyword = getString("Enter keywords or names:", 1, 30);
             bool found = false;
 
             for (const auto& p : products) {
