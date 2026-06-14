@@ -1,3 +1,5 @@
+#pragma once
+
 struct FileStatus {
     static constexpr int SUCCESS = 0;
     static constexpr int WARNING_PARSING_ERRORS = 1;
