@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
@@ -12,6 +13,7 @@
 #include "productInfo.h"
 //#include "saleReceipt.h" // comment this out when we need to use this
 #include "inputHandling.h"
+#include "tableFormatting.h"
 
 
 // file handling
@@ -83,14 +85,16 @@ int main()
 
 void displayProducts(const std::vector<ProductInfo> &products)
 {
+
+    printInventoryTableHeader();
+
     for(const auto &p : products) {
         if(p.stockQnty != 0) {
-            std::cout	<< "ID: " << p.ID << " | "
-                        << "name: " << p.name << " | "
-                        << "price: " << p.price << " | "
-                        << "stock: " << p.stockQnty << "\n";
+            printProductInfo(p);
         }
     }	
+
+    printInventoryTableSeparator();
 }
 
 void addProduct(std::vector<ProductInfo>& inventory)
@@ -302,51 +306,49 @@ void searchProduct(const std::vector<ProductInfo>& products) {
     int choice = 0;
     
     while (choice != 3) {
-        std::cout << "\n=== PRODUCT QUERY SEARCH CENTER ===\n";
-        std::cout << "[1] Search by Product ID Structural Pattern (e.g. 'E40')\n";
+        std::cout << "\n=== PRODUCT SEARCH CENTER ===\n";
+        std::cout << "[1] Search by Product ID Patterns (e.g. 'e40')\n";
         std::cout << "[2] Search by Product Name Keyword\n";
         std::cout << "[3] Exit Search Mode Menu\n";
         choice = getInt("Select entry point parameter (1-3):", 1, 3);
 
-        
-
         if (choice == 1) {
-            std::string idPattern = getString("Enter structural ID sequence segment profile:", 1, 20);
+            std::string idPattern = getString("Enter structural ID Patterns:", 1, 20);
+            
+            std::string lowerPattern = idPattern;
+            std::transform(lowerPattern.begin(), lowerPattern.end(), lowerPattern.begin(), ::tolower);
+            
             bool found = false;
 
             for (const auto& p : products) {
-                if (p.ID.find(idPattern) != std::string::npos) {
-                    if (!found) {
+                std::string lowerID = p.ID;
+                std::transform(lowerID.begin(), lowerID.end(), lowerID.begin(), ::tolower);
+
+                if (lowerID.find(lowerPattern) != std::string::npos) {
                     found = true;
-                    std::cout << "-------------------------------------------------------------\n"
-                              << "ID: " << p.ID 
-                              << " | name: " << p.name 
-                              << " | price: " << p.price 
-                              << " | stock: " << p.stockQnty << "\n";
-                    }
+                    printProductInfo(p);
                 }
             }
             if (!found) std::cout << errmsg.productNotFound;
-            else std::cout << "-------------------------------------------------------------\n";
 
         } else if (choice == 2) {
-            std::string keyword = getString("Enter targeted name filter keyword entry:", 1, 30);
+            std::string keyword = getString("Enter keywords or names:", 1, 50);
+            
+            std::string lowerKeyword = keyword;
+            std::transform(lowerKeyword.begin(), lowerKeyword.end(), lowerKeyword.begin(), ::tolower);
+            
             bool found = false;
 
             for (const auto& p : products) {
-                if (p.name.find(keyword) != std::string::npos) {
-                    if (!found) {
+                std::string lowerName = p.name;
+                std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), ::tolower);
+
+                if (lowerName.find(lowerKeyword) != std::string::npos) {
                     found = true;
-                    std::cout <<  "-------------------------------------------------------------\n"
-                              << "ID: " << p.ID 
-                              << " | name: " << p.name 
-                              << " | price: " << p.price 
-                              << " | stock: " << p.stockQnty << "\n";
-                    }
+                    printProductInfo(p);
                 }
             }
             if (!found) std::cout << errmsg.nameNotFound;
-            else std::cout << "-------------------------------------------------------------\n";
         }
     }
     std::cout << "Exiting search system modules.\n";
