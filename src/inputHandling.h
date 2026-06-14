@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "errMsg.h"
-#include "productInfo.h"
+#include "product.h"
 
 std::string getString(const std::string& prompt = "", int min = 1, int max = 999999);
 double getDouble(const std::string& prompt = "", double min = 0.0, double max = 999999.9);

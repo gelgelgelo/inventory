@@ -1,8 +1,10 @@
 #include <iostream>
 #include <iomanip>
+#include <vector>
 
-#include "tableFormatting.h"
-#include "productInfo.h"
+
+#include "display.h"
+#include "product.h"
 
 void printInventoryTableSeparator() {
     // Total width is the sum of columns + space for dividers
@@ -26,4 +28,18 @@ void printProductInfo(const ProductInfo& p){
               << "| " << std::left  << std::setw(WIDTH_NAME)  << p.name
               << "| " << std::right << std::setw(WIDTH_PRICE) << p.price
               << "| " << std::right << std::setw(WIDTH_STOCK) << p.stockQnty << "|\n";
+}
+
+void displayProducts(const std::vector<ProductInfo> &products)
+{
+
+    printInventoryTableHeader();
+
+    for(const auto &p : products) {
+        if(p.stockQnty != 0) {
+            printProductInfo(p);
+        }
+    }	
+
+    printInventoryTableSeparator();
 }

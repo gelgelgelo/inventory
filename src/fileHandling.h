@@ -1,5 +1,15 @@
 #pragma once
 
+#include <string>
+#include <vector>
+
+#include "product.h"
+
+int loadInventory(std::vector<ProductInfo>&, const std::string&);
+ProductInfo parseLine(const std::string&);
+int saveInventory(const std::vector<ProductInfo>&, const std::string&);
+std::string encodeProductData(const ProductInfo&);
+
 struct FileStatus {
     static constexpr int SUCCESS = 0;
     static constexpr int WARNING_PARSING_ERRORS = 1;

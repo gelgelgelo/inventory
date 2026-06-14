@@ -1,10 +1,11 @@
 #pragma once
 
-#include "productInfo.h"
+#include "product.h"
 
 void printInventoryTableSeparator();
 void printInventoryTableHeader();
 void printProductInfo(const ProductInfo&);
+void displayProducts(const std::vector<ProductInfo> &);
 
 const int WIDTH_ID    = 6;
 const int WIDTH_NAME  = 35;
