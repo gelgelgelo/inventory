@@ -46,6 +46,8 @@ int main()
     searchProduct(productInventory);
     addProduct(productInventory);
     updateProduct(productInventory);
+    deleteProduct(productInventory);
+    processOrder(productInventory);
 
     status = saveInventory(productInventory, filePath);
     switch(status){
