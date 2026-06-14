@@ -300,7 +300,7 @@ void searchProduct(const std::vector<ProductInfo>& products) {
     }
 
     int choice = 0;
-    
+
     while (choice != 3) {
         std::cout << "\n=== PRODUCT QUERY SEARCH CENTER ===\n";
         std::cout << "[1] Search by Product ID Structural Pattern (e.g. 'E40')\n";
@@ -308,10 +308,10 @@ void searchProduct(const std::vector<ProductInfo>& products) {
         std::cout << "[3] Exit Search Mode Menu\n";
         choice = getInt("Select entry point parameter (1-3):", 1, 3);
 
-        
+
 
         if (choice == 1) {
-            std::string idPattern = getString("Enter structural ID sequence segment profile:", 1, 20);
+            std::string idPattern = getString("Enter ID patterns:", 1, 20);
             bool found = false;
 
             for (const auto& p : products) {
@@ -330,7 +330,7 @@ void searchProduct(const std::vector<ProductInfo>& products) {
             else std::cout << "-------------------------------------------------------------\n";
 
         } else if (choice == 2) {
-            std::string keyword = getString("Enter targeted name filter keyword entry:", 1, 30);
+            std::string keyword = getString("Enter keywords or names:", 1, 30);
             bool found = false;
 
             for (const auto& p : products) {
