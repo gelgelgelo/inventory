@@ -6,6 +6,47 @@
 #include "display.h"
 #include "product.h"
 
+void displayMainMenu(){
+    std::string mainMenu = "\n\n===== PRODUCT INVENTORY SYSTEM =====\n\n"
+                           "      [1] Product Management\n"
+                           "      [2] Stock Monitoring\n"
+                           "      [3] Customer Orders\n"
+                           "      [4] Save Inventory\n"
+                           "      [0] Exit";
+    std::cout << mainMenu << std::endl;
+}
+
+void displayProdMngMenu(){
+    std::string prodMngMenu = "\n\n--- PRODUCT MANAGEMENT ---\n\n"
+                              "    [1] Display\n"
+                              "    [2] Search\n"
+                              "    [3] Update\n"
+                              "    [4] Add\n"
+                              "    [5] Delete\n"
+                              "    [0] Exit";
+
+    std::cout << prodMngMenu << std::endl;
+}
+
+void displayStockMonMenu(){
+    std::string stockMonMenu = "\n\n--- STOCK MONITORING ---\n\n"
+                               "    [1] Display All\n"
+                               "    [2] Display Critical\n"
+                               "    [0] Exit";
+
+    std::cout << stockMonMenu << std::endl;
+}
+
+void displayCustomerMenu(){
+    std::string customerMenu = "\n\n--- CUSTOMER ORDERS ---\n\n"
+                               "    [1] Process New Order\n"
+                               "    [2] View Sales Log\n"
+                               "    [0] Exit";
+
+    std::cout << customerMenu << std::endl;
+}
+
+
 void printInventoryTableSeparator() {
     // Total width is the sum of columns + space for dividers
     int totalWidth = WIDTH_ID + WIDTH_NAME + WIDTH_PRICE + WIDTH_STOCK + 7; 

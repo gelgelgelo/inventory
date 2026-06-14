@@ -14,6 +14,8 @@ struct ProductInfo {
             return "Low Stock";
         return "In Stock";
     }
+
+    bool operator==(const ProductInfo&) const = default;
 };
 
 struct SaleReceipt {

@@ -18,5 +18,5 @@ E401|USB Flash Drive 32GB|250.00|40
 E402|AA Battery 4pack|85.00|60
 E403|Wireless Earphones|200.00|67
 E405|USB Flash Drive 512GB|4000.00|23
-E406|Muahaha|342.00|1
+E406|Muehehehe|342.00|1
 E407|fwefw|43.00|0

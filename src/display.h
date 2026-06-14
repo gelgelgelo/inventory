@@ -5,6 +5,10 @@
 void printInventoryTableSeparator();
 void printInventoryTableHeader();
 void printProductInfo(const ProductInfo&);
+void displayMainMenu();
+void displayProdMngMenu();
+void displayStockMonMenu();
+void displayCustomerMenu();
 void displayProducts(const std::vector<ProductInfo> &);
 
 const int WIDTH_ID    = 6;

@@ -17,8 +17,10 @@ void addProduct(std::vector<ProductInfo>& inventory)
     int stockQnty;
     
     while (true) {
-        ID = getString("Enter Product ID", 4);
-        
+        ID = getString("Enter Product ID ('cancel' to cancel) : ", 4, 6);
+        if(ID == "cancel")
+            return;
+
         if (isIdDuplicate(ID, inventory)) {
             std::cout << errmsg.duplicateID;
             continue;
@@ -26,9 +28,15 @@ void addProduct(std::vector<ProductInfo>& inventory)
         
         break;
     }
-    name = getString("Enter Product Name", 1, 100);
-    price = getDouble("Enter Product Price", 0.01);
-    stockQnty = getInt("Enter Stock Quantity", 0);
+    name = getString("Enter Product Name ('cancel' to cancel) :", 1, 100);
+    if(name == "cancel")
+        return;
+    price = getDouble("Enter Product Price (0.0 to cancel)", 0.0);
+    if(price == 0.0)
+        return;
+    stockQnty = getInt("Enter Stock Quantity (0 to cancel)", 0);
+    if(stockQnty == 0)
+        return;
 
     inventory.push_back({ID, name, price, stockQnty});
 
@@ -45,7 +53,9 @@ void updateProduct(std::vector<ProductInfo>& products)
     bool found = false;
     char choice;
 
-    targetID = getString("\nEnter Product ID to update: ", 4);
+    targetID = getString("\nEnter Product ID to update ('cancel' to cancel): ", 4, 6);
+    if(targetID == "cancel")
+        return;
 
     // Looking for product
     for (auto &p : products)
@@ -76,15 +86,15 @@ void updateProduct(std::vector<ProductInfo>& products)
 
         switch(choice) {
             case 'a':
-                (*targetProduct).name = getString("Enter New Name: ", 1, 50);
+                (*targetProduct).name = getString("Enter New Name : ", 1, 50);
                 std::cout << "Name updated!\n";
                 break;
             case 'b':
-                (*targetProduct).price = getDouble("Enter New Price: ", 0.01);
+                (*targetProduct).price = getDouble("Enter New Price : ", 0.01);
                 std::cout << "Price updated!\n";
                 break;
             case 'c':
-                (*targetProduct).stockQnty = getInt("Enter New Stock Quantity: ", 1);
+                (*targetProduct).stockQnty = getInt("Enter New Stock Quantity : ", 1);
                 std::cout << "Stock updated!\n";
                 break;
             case 'd':
@@ -103,22 +113,24 @@ void searchProduct(const std::vector<ProductInfo>& products) {
         return;
     }
 
-    int choice = 0;
+    char choice;
     
-    while (choice != 3) {
+    while (choice != 'c') {
         std::cout << "\n=== PRODUCT SEARCH CENTER ===\n";
-        std::cout << "[1] Search by Product ID Patterns (e.g. 'e40')\n";
-        std::cout << "[2] Search by Product Name Keyword\n";
-        std::cout << "[3] Exit Search Mode Menu\n";
-        choice = getInt("Select entry point parameter (1-3):", 1, 3);
+        std::cout << "[a] Search by Product ID Patterns (e.g. 'e40')\n";
+        std::cout << "[b] Search by Product Name Keyword\n";
+        std::cout << "[c] Exit Search Mode Menu\n";
+        choice = getChar("", 'a', 'c');
 
-        if (choice == 1) {
-            std::string idPattern = getString("Enter structural ID Patterns:", 1, 20);
+        if (choice == 'a') {
+            std::string idPattern = getString("Enter structural ID Patterns:", 4);
             
             std::string lowerPattern = idPattern;
             std::transform(lowerPattern.begin(), lowerPattern.end(), lowerPattern.begin(), ::tolower);
             
             bool found = false;
+
+            std::cout << "\n";
 
             for (const auto& p : products) {
                 std::string lowerID = p.ID;
@@ -131,7 +143,7 @@ void searchProduct(const std::vector<ProductInfo>& products) {
             }
             if (!found) std::cout << errmsg.productNotFound;
 
-        } else if (choice == 2) {
+        } else if (choice == 'b') {
             std::string keyword = getString("Enter keywords or names:", 1, 50);
             
             std::string lowerKeyword = keyword;
@@ -151,7 +163,7 @@ void searchProduct(const std::vector<ProductInfo>& products) {
             if (!found) std::cout << errmsg.nameNotFound;
         }
     }
-    std::cout << "Exiting search system modules.\n";
+    std::cout << "\nExiting search system modules.\n";
 }
 
 void processOrder(std::vector<ProductInfo>& products)
@@ -161,12 +173,14 @@ void processOrder(std::vector<ProductInfo>& products)
         return;
     }
 
-    int menuChoice;
+    char menuChoice;
 
     std::cout << "\n=== CUSTOMER ORDERING SYSTEM ===\n";
 
     do {
-        std::string targetID = getString("\nEnter Product ID to order: ", 4);
+        std::string targetID = getString("\nEnter Product ID to order ('cancel' to cancel): ", 4, 6);
+        if(targetID == "cancel")
+            return;
 
         ProductInfo* targetProduct = nullptr;
         for (auto &p : products) {
@@ -188,8 +202,9 @@ void processOrder(std::vector<ProductInfo>& products)
                       << " | Price: " << std::fixed << std::setprecision(2) << targetProduct->price
                       << " | Available Stock: " << targetProduct->stockQnty << "\n";
 
-            int orderQty = getInt("Enter Quantity to order: ", 1, targetProduct->stockQnty);
-
+            int orderQty = getInt("Enter Quantity to order (0 to cancel): ", 0, targetProduct->stockQnty);
+            if(orderQty == 0)
+                break;
             
             targetProduct->stockQnty -= orderQty;
 
@@ -198,11 +213,9 @@ void processOrder(std::vector<ProductInfo>& products)
             std::cout << "Remaining Stock: " << targetProduct->stockQnty << "\n";
         }
 
-        std::cout << "\n[1] Order another item\n";
-        std::cout << "[2] Exit Ordering System\n";
-        menuChoice = getInt("Select an option (1-2): ", 1, 2);
+        menuChoice = getChar("Process another? ('Y'/'n') : ", 'A', 'z');
 
-    } while (menuChoice != 2);
+    } while (menuChoice == 'y' || menuChoice == 'Y');
 
     std::cout << "\nExiting customer ordering system...\n";
 }
@@ -215,7 +228,10 @@ void deleteProduct(std::vector<ProductInfo>& products) {
         return;
     }
 
-    std::string targetID = getString("Enter Product ID to delete: ", 4);
+    std::string targetID = getString("\nEnter Product ID to delete ('cancel' to cancel): ", 4, 6);
+    if(targetID == "cancel")
+        return;
+
     bool found = false;
 
     for (auto &p : products) {
