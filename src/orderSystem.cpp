@@ -41,6 +41,7 @@ void processOrder(std::vector<ProductInfo>& products){
 
         switch (menuChoice) {
             case 'a': // --- ADD TO CART ---
+                displayProducts(products);
                 addToCart(products, cart);
                 break;
 
@@ -164,9 +165,42 @@ char checkout(std::vector<CartItem>& cart){
     }
 
     std::cout << "\nProcessing payment and checking out...\n";
+
+    // --- TRANSACTION / RECEIPT SUMMARY (50 Columns Wide) ---
+    std::cout << "\n==================================================\n";
+    std::cout << "               TRANSACTION RECEIPT                \n";
+    std::cout << "==================================================\n";
+    std::cout << std::left << std::setw(22) << "Item Description" 
+              << std::right << std::setw(6) << "Qty" 
+              << std::setw(11) << "Unit Price" 
+              << std::setw(11) << "Total" << "\n";
+    std::cout << "==================================================\n";
+
+    double grandTotal = 0.0;
+
     for (CartItem& ci : cart) {
+        double itemTotal = ci.product->price * ci.orderQty;
+        grandTotal += itemTotal;
+
+        // Truncate names longer than 21 characters to maintain column alignment
+        std::string displayName = ci.product->name;
+        if (displayName.length() > 21) {
+            displayName = displayName.substr(0, 18) + "...";
+        }
+
+        std::cout << std::left << std::setw(22) << displayName
+                  << std::right << std::setw(6) << ci.orderQty
+                  << std::setw(11) << ci.product->price
+                  << std::setw(11) << itemTotal << "\n";
+
+        // Deduct stock from inventory
         ci.product->stockQnty -= ci.orderQty;
     }
-    std::cout << "Order processed successfully! Thank you for shopping with us.\n";
+
+    std::cout << "==================================================\n";
+    std::cout << std::right << std::setw(39) << "total: " 
+              << std::setw(11) << grandTotal << "\n";
+    std::cout << "==================================================\n";
+
     return 'd';
 }
