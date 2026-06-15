@@ -5,23 +5,24 @@
 #include <sstream>
 #include <vector>
 
+#include "errMsg.h"
 #include "fileHandling.h"
 #include "product.h"
-#include "errMsg.h"
 #include "inputHandling.h"
 
-int loadInventory(std::vector<ProductInfo>& productInventory, const std::string& filePath){
+
+int loadInventory(std::vector<ProductInfo>& productInventory){
     std::string productRawData;
     ProductInfo processedData;
     bool fileClean = true;
 
-    std::ifstream readFile(filePath); // open file
+    std::ifstream readFile(INVENTORY_FILE_PATH); // open file
     if(!readFile.is_open()) return fileStatus.ERROR_FILE_NOT_READ;// return if file not open
 
     while (std::getline (readFile, productRawData)) {
         if(productRawData.empty()) continue; // immediately skip empty lines
 
-        processedData = parseLine(productRawData);
+        processedData = parseInvLine(productRawData);
 
         if(processedData.ID == "[ERROR]"){ // the parser returns an [ERROR] id if it fails and line is skipped
             std::cout << errmsg.corruptLineSkipped;
@@ -39,7 +40,8 @@ int loadInventory(std::vector<ProductInfo>& productInventory, const std::string&
     return fileStatus.SUCCESS;
 }
 
-ProductInfo parseLine(const std::string& productRawData){
+
+ProductInfo parseInvLine(const std::string& productRawData){
     std::string ID, name;
     double price;
     int stockQnty;
@@ -70,8 +72,8 @@ ProductInfo parseLine(const std::string& productRawData){
     return {ID, name, price, stockQnty};
 }
 
-int saveInventory(const std::vector<ProductInfo>& productInventory, const std::string& filePath){
-    std::filesystem::path txtFilePath = filePath;
+int saveInventory(const std::vector<ProductInfo>& productInventory){
+    std::filesystem::path txtFilePath = INVENTORY_FILE_PATH;
 
     std::filesystem::path parentDir = txtFilePath.parent_path(); 
     std::filesystem::create_directories(parentDir);
@@ -122,4 +124,116 @@ std::string encodeProductData(const ProductInfo& productData){
 
 
     return encodedData;
+}
+
+int loadLogs(std::vector<SaleReceipt>& logs) {
+    std::string rawLine;
+    bool fileClean = true;
+
+    std::ifstream readFile(SALES_FILE_PATH);
+    if (!readFile.is_open()) return fileStatus.ERROR_FILE_NOT_READ;
+
+    while (std::getline(readFile, rawLine)) {
+        if (rawLine.empty()) continue;
+
+        ParsedLineResult parsed = parseSaleLine(rawLine);
+
+        if (!parsed.isValid) {
+            std::cout << errmsg.corruptLineSkipped << " -> Raw Line : " << rawLine << "\n";
+            fileClean = false;
+            continue;
+        }
+
+        // If it belongs to the same transaction, append the item
+        if (!logs.empty() && logs.back().transactionID == parsed.receiptInfo.transactionID) {
+            logs.back().itemsBought.push_back(parsed.item);
+        } 
+        // Otherwise, create a new receipt entry
+        else {
+            SaleReceipt newReceipt = parsed.receiptInfo;
+            newReceipt.itemsBought.push_back(parsed.item);
+            logs.push_back(newReceipt);
+        }
+    }
+    readFile.close();
+
+    if (!fileClean) return fileStatus.WARNING_PARSING_ERRORS;
+    return fileStatus.SUCCESS;
+}
+
+
+ParsedLineResult parseSaleLine(const std::string& rawLine) {
+    ParsedLineResult result;
+    std::stringstream ss(rawLine);
+    std::string token;
+    std::vector<std::string> tokens;
+
+    while (std::getline(ss, token, '|')) {
+        tokens.push_back(token);
+    }
+
+    if (tokens.size() != 10) {
+        result.isValid = false;
+        return result;
+    }
+
+    // Validate number strings
+    if (!validateIntStr(tokens[4])    || !validateDoubleStr(tokens[5]) || 
+        !validateDoubleStr(tokens[6]) || !validateDoubleStr(tokens[7]) || 
+        !validateDoubleStr(tokens[8]) || !validateDoubleStr(tokens[9])) {
+        result.isValid = false;
+        return result;
+    }
+
+    // Populate Receipt Metadata
+    result.receiptInfo.transactionID = tokens[0];
+    result.receiptInfo.customerName = tokens[1];
+    result.receiptInfo.date = tokens[2];
+    result.receiptInfo.grandTotal = std::stod(tokens[7]);
+    result.receiptInfo.customerPayment = std::stod(tokens[8]);
+    result.receiptInfo.change = std::stod(tokens[9]);
+
+    // Populate Cart Item snapshot directly
+    result.item.ID = tokens[3];
+    result.item.name = ""; // Leave blank or map if needed, but ID and Price are captured!
+    result.item.orderQty = std::stoi(tokens[4]);
+    result.item.price = std::stod(tokens[5]);
+    result.item.total = std::stod(tokens[6]);
+
+    return result;
+}
+
+
+int appendSaleLog(const SaleReceipt& receipt) {
+    std::ofstream writeFile(SALES_FILE_PATH, std::ios::app);
+    if (!writeFile.is_open()) return fileStatus.ERROR_FILE_NOT_OPENED;
+
+    std::stringstream ss;
+    ss << std::fixed << std::setprecision(2);
+
+    for (const auto& item : receipt.itemsBought) {
+        ss.str(""); 
+        ss.clear();
+        
+        ss << receipt.transactionID << "|"
+           << receipt.customerName << "|"
+           << receipt.date << "|"
+           << item.ID << "|"
+           << item.orderQty << "|"
+           << item.price << "|"
+           << item.total << "|"
+           << receipt.grandTotal << "|"
+           << receipt.customerPayment << "|"
+           << receipt.change;
+
+        writeFile << ss.str() << "\n";
+    }
+
+    if (writeFile.bad()) {
+        writeFile.close();
+        return fileStatus.ERROR_WRITING;
+    }
+
+    writeFile.close();
+    return fileStatus.SUCCESS;
 }

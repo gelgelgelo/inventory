@@ -1,4 +1,5 @@
-
+#include <chrono>
+#include <ctime>
 #include <iostream>
 #include <iomanip>
 #include <algorithm>
@@ -9,16 +10,19 @@
 #include "display.h"
 #include "errMsg.h"
 #include "product.h"
+#include "fileHandling.h"
 
 // --- Private Helper Functions ---
 // (No one outside this file can see or use these)
 void addToCart(std::vector<ProductInfo>& products, std::vector<CartItem>& cart);
 void removeFromCart(std::vector<CartItem>& cart);
 void viewCart(const std::vector<CartItem>& cart);
-char checkout(std::vector<CartItem>& cart);
+char checkout(std::vector<CartItem>& cart, std::vector<ProductInfo>& inventory, std::vector<SaleReceipt>& salesLog);
+std::string generateNextTransactionID(const std::vector<SaleReceipt>& logs);
+std::string getCurrentDate();
 
 // --- Main Public Function ---
-void processOrder(std::vector<ProductInfo>& products){
+void processOrder(std::vector<ProductInfo>& products, std::vector<SaleReceipt>& salesLog){
     if (products.empty()) {
         std::cout << "\n[Notice] No products are available. Orders cannot be processed at this time.\n";
         return;
@@ -54,7 +58,7 @@ void processOrder(std::vector<ProductInfo>& products){
                 break;
 
             case 'd':  // --- CHECKOUT ---
-                menuChoice = checkout(cart);
+                menuChoice = checkout(cart, products, salesLog);
                 break;
                 
             case 'e': // --- CANCEL ---
@@ -88,7 +92,7 @@ void addToCart(std::vector<ProductInfo>& products, std::vector<CartItem>& cart){
     int alreadyInCart = 0;
     CartItem* existingCartItem = nullptr;
     for (auto &item : cart) {
-        if (item.product->ID == targetID) {
+        if (item.ID == targetID) {
             alreadyInCart = item.orderQty;
             existingCartItem = &item;
             break;
@@ -112,7 +116,7 @@ void addToCart(std::vector<ProductInfo>& products, std::vector<CartItem>& cart){
     if (existingCartItem != nullptr) {
         existingCartItem->orderQty += orderQty;
     } else {
-        cart.push_back({targetProduct, orderQty});
+        cart.push_back({targetProduct->ID, targetProduct->name, targetProduct->price, orderQty, orderQty*targetProduct->price});
     }
 
     std::cout << "\nSuccessfully added " << orderQty << " x \"" << targetProduct->name << "\" to your cart!\n";
@@ -131,14 +135,14 @@ void removeFromCart(std::vector<CartItem>& cart){
     bool found = false;
     int i = 0;
     for(CartItem& ci : cart){
-        if(targetID == ci.product->ID){
+        if(targetID == ci.ID){
             found = true;
             break;
         }
         i++;
     }
     if(found){
-        std::cout << "Removed all units of \"" << cart[i].product->name << "\" from the cart.\n";
+        std::cout << "Removed all units of \"" << cart[i].name << "\" from the cart.\n";
     cart.erase(cart.begin() + i);
     }
     else {
@@ -152,55 +156,139 @@ void viewCart(const std::vector<CartItem>& cart){
     } else {
         double totalPrice = 0.0;
         for (const auto& item : cart) {
-            totalPrice += (item.product->price * item.orderQty);
+            totalPrice += (item.total);
         }
         displayCart(cart, totalPrice);
     }
 }
 
-char checkout(std::vector<CartItem>& cart){
+char checkout(std::vector<CartItem>& cart, std::vector<ProductInfo>& inventory, std::vector<SaleReceipt>& salesLog) {
     if (cart.empty()) {
         std::cout << "\n[Error] Cannot checkout an empty cart!\n";
         return ' ';
     }
 
     std::cout << "\nProcessing payment and checking out...\n";
-
-    // --- TRANSACTION / RECEIPT SUMMARY (50 Columns Wide) ---
-    std::cout << "\n==================================================\n";
-    std::cout << "               TRANSACTION RECEIPT                \n";
-    std::cout << "==================================================\n";
-    std::cout << std::left << std::setw(22) << "Item Description" 
-              << std::right << std::setw(6) << "Qty" 
-              << std::setw(11) << "Unit Price" 
-              << std::setw(11) << "Total" << "\n";
-    std::cout << "==================================================\n";
-
+    
     double grandTotal = 0.0;
+    
+    // --- PROCESS AND DISPLAY ITEMS ---
+    printReceiptHeader();
 
     for (CartItem& ci : cart) {
-        double itemTotal = ci.product->price * ci.orderQty;
-        grandTotal += itemTotal;
-
-        // Truncate names longer than 21 characters to maintain column alignment
-        std::string displayName = ci.product->name;
-        if (displayName.length() > 21) {
-            displayName = displayName.substr(0, 18) + "...";
-        }
-
-        std::cout << std::left << std::setw(22) << displayName
-                  << std::right << std::setw(6) << ci.orderQty
-                  << std::setw(11) << ci.product->price
-                  << std::setw(11) << itemTotal << "\n";
+        grandTotal += ci.total;
+        printReceiptItem(ci);
 
         // Deduct stock from inventory
-        ci.product->stockQnty -= ci.orderQty;
+        ProductInfo* targetProduct = nullptr;
+        for (auto &p : inventory) {
+            if (p.ID == ci.ID) {
+                targetProduct = &p;
+                break;
+            }
+        }
+        
+        // Safety check to prevent crashes if a product ID doesn't match
+        if (targetProduct != nullptr) {
+            targetProduct->stockQnty -= ci.orderQty;
+        }
     }
 
     std::cout << "==================================================\n";
-    std::cout << std::right << std::setw(39) << "total: " 
+    std::cout << std::right << std::setw(39) << "Total: " 
               << std::setw(11) << grandTotal << "\n";
     std::cout << "==================================================\n";
 
-    return 'd';
+    // --- TRANSACTION METADATA GENERATION ---
+    std::string transactionID = generateNextTransactionID(salesLog);
+    std::string customerName = getString("Enter customer name : ", 1);
+    
+    // --- PAYMENT HANDLING & VALIDATION LOOP ---
+    double payment = 0.0;
+    while (true) {
+        payment = getDouble("Enter customer payment: ", 0.01);
+        
+        if (payment >= grandTotal) {
+            break; // Valid payment received, break the loop
+        }
+        
+        std::cout << "\n[Error] Insufficient payment! Current total is " << grandTotal 
+                  << ". Please enter an amount equal to or greater.\n";
+    }
+
+    // Calculate final change
+    double change = payment - grandTotal;
+
+    // --- PRINT PAYMENT SECTION OF RECEIPT ---
+    std::cout << std::right << std::setw(39) << "Payment: " 
+              << std::setw(11) << payment << "\n";
+    std::cout << std::right << std::setw(39) << "Change: " 
+              << std::setw(11) << change << "\n";
+    std::cout << "==================================================\n";
+    std::cout << "  Thank you for shopping, " << customerName << "!\n";
+    std::cout << "  Transaction ID: " << transactionID << "\n";
+    std::cout << "==================================================\n\n";
+
+    // --- RECORD RETRIEVAL & RETENTION ---
+    std::string currentDate = getCurrentDate(); // Grab local OS time/date
+
+    // Build the structural database receipt object
+    SaleReceipt receipt = {
+        transactionID,
+        customerName,
+        cart,          // Copies items bought directly inside
+        grandTotal,
+        payment,
+        change,
+        currentDate
+    };
+
+    // 1. Permanently write and append to your log file storage
+    // (Adjust "sales.txt" to match your system path if needed)
+    appendSaleLog(receipt);
+
+    // 2. Commit transaction to live RAM storage tracking
+    salesLog.push_back(receipt);
+
+    // 3. Wipe current checkout session cart clean for next client interaction
+    cart.clear();
+
+    return 'd'; 
+}
+
+std::string generateNextTransactionID(const std::vector<SaleReceipt>& logs) {
+    // If there are no past transactions in the file, start with a default base ID
+    if (logs.empty()) {
+        return "TXN-1001";
+    }
+
+    // Grab the absolute last receipt in our vector memory
+    std::string lastID = logs.back().transactionID; // e.g., "TXN-1002"
+
+    // Verify it starts with our prefix, then parse the number out
+    if (lastID.rfind("TXN-", 0) == 0) { 
+        std::string numericPart = lastID.substr(4); // Extracts "1002"
+        int nextNumber = std::stoi(numericPart) + 1; // 1003
+        
+        return "TXN-" + std::to_string(nextNumber); // Returns "TXN-1003"
+    }
+
+    return "TXN-1001"; // Fallback safety default
+}
+
+std::string getCurrentDate() {
+    // Get the current system time point
+    auto now = std::chrono::system_clock::now();
+    
+    // Convert to a time_t object
+    std::time_t current_time = std::chrono::system_clock::to_time_t(now);
+    
+    // Convert to local time structure
+    std::tm* local_time = std::localtime(&current_time);
+    
+    // Format into YYYY-MM-DD
+    std::stringstream ss;
+    ss << std::put_time(local_time, "%Y-%m-%d");
+    
+    return ss.str();
 }

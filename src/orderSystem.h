@@ -4,4 +4,4 @@
 #include "product.h" // Needed for ProductInfo
 
 // Only expose the main entry point
-void processOrder(std::vector<ProductInfo>& products);
+void processOrder(std::vector<ProductInfo>& products, std::vector<SaleReceipt>& salesLog);

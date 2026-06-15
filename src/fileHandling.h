@@ -5,10 +5,24 @@
 
 #include "product.h"
 
-int loadInventory(std::vector<ProductInfo>&, const std::string&);
-ProductInfo parseLine(const std::string&);
-int saveInventory(const std::vector<ProductInfo>&, const std::string&);
+const std::string INVENTORY_FILE_PATH = "inv/inventory.txt";
+const std::string SALES_FILE_PATH = "inv/salesLog.txt";
+
+
+struct ParsedLineResult {
+    SaleReceipt receiptInfo;
+    CartItem item;
+    bool isValid = true;
+};
+
+int loadInventory(std::vector<ProductInfo>&);
+ProductInfo parseInvLine(const std::string&);
+int saveInventory(const std::vector<ProductInfo>&);
 std::string encodeProductData(const ProductInfo&);
+int loadLogs(std::vector<SaleReceipt>&);
+ParsedLineResult parseSaleLine(const std::string&);
+int appendSaleLog(const SaleReceipt&);
+
 
 struct FileStatus {
     static constexpr int SUCCESS = 0;

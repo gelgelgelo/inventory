@@ -18,19 +18,18 @@
 
 void productManagement(std::vector<ProductInfo>&);
 void stockMonitoring(const std::vector<ProductInfo>&);
-void customerOrders(std::vector<ProductInfo>&);
+void customerOrders(std::vector<ProductInfo>&, std::vector<SaleReceipt>&);
 bool isSure();
 
 int main()
 {
     // initialize inventory vector
     std::vector<ProductInfo> productInventory;
+    std::vector<SaleReceipt> salesLog;
 
     // check if the file was read properly
-    std::string filePath = "inv/inventory.txt";
-    int status = loadInventory(productInventory, filePath);
 
-    
+    int status = loadInventory(productInventory);
     std::cout << "\n\n";
     switch(status){
         case fileStatus.SUCCESS : 
@@ -45,6 +44,23 @@ int main()
             std::cout << errmsg.fileCantBeRead;
             return 1;
     }
+
+    status = loadLogs(salesLog);
+    std::cout << "\n\n";
+    switch(status){
+        case fileStatus.SUCCESS : 
+            std::cout << "File read successfully.\n\n";
+            break;
+        
+        case fileStatus.WARNING_PARSING_ERRORS :
+            std::cout << errmsg.parsedWithSkippedLines;
+            break;
+
+        case fileStatus.ERROR_FILE_NOT_READ :
+            std::cout << errmsg.fileCantBeRead;
+            return 1;
+    }
+
 
     std::vector<ProductInfo> tempVec = productInventory;
     bool isRunning = true;
@@ -64,10 +80,10 @@ int main()
                 stockMonitoring(productInventory);
                 break;
             case 3 :
-                customerOrders(productInventory);
+                customerOrders(productInventory, salesLog);
                 break;
             case 4 : // holy nesting
-                status = saveInventory(productInventory, filePath);
+                status = saveInventory(productInventory);
                 switch(status){
                     case fileStatus.SUCCESS : 
                         std::cout << "File updated successfully.\n\n";
@@ -141,10 +157,10 @@ void stockMonitoring(const std::vector<ProductInfo>& productInventory){
 
         switch(choice){
             case 1 :
-                // display all stock
+                displayStock(productInventory);
                 break;
             case 2 :
-                // display only criticals
+                displayStock(productInventory, true);
                 break;
             case 0 : 
                 isRunning = false;
@@ -154,7 +170,7 @@ void stockMonitoring(const std::vector<ProductInfo>& productInventory){
     }
 }
 
-void customerOrders(std::vector<ProductInfo>& productInventory){
+void customerOrders(std::vector<ProductInfo>& productInventory, std::vector<SaleReceipt>& salesLog){
     bool isRunning = true;
     int choice = 0;
     while(isRunning){
@@ -164,10 +180,10 @@ void customerOrders(std::vector<ProductInfo>& productInventory){
 
         switch(choice){
             case 1 :
-                processOrder(productInventory);
+                processOrder(productInventory, salesLog);
                 break;
             case 2 :
-                // view sales log
+                displaySalesLog(salesLog);
                 break;
             case 0 : 
                 isRunning = false;
@@ -178,6 +194,6 @@ void customerOrders(std::vector<ProductInfo>& productInventory){
 }
 
 bool isSure(){
-    char choice = getChar("Changes not saved. Exit anyways? ('Y'/'n')", 'A','z');
+    char choice = getChar("[WARNING] Changes not saved. Exit anyways? ('Y'/'n')", 'A','z');
     return (choice == 'Y' || choice == 'y');
 }
